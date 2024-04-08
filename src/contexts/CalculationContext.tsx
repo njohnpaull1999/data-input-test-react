@@ -39,7 +39,7 @@ export const CalculationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       name: 'sumA',
       inputKeys: ['sumA1', 'sumA2'],
       calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a + b, 0),
-      isEntered: userInput.sumA.isEntered,
+      isEntered: userInput?.sumA?.isEntered || false,
       children: [
         {
           name: 'sumA1',
@@ -72,17 +72,17 @@ export const CalculationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       name: 'multiplyB',
       inputKeys: ['multiplyB1', 'multiplyB2'],
       calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a * b, 1),
-      isEntered: userInput.multiplyB.isEntered,
+      isEntered: userInput?.multiplyB?.isEntered || false,
       children: [
         {
           name: 'multiplyB1',
           inputKeys: ['input11', 'input12'],
-          calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a * b, 0),
+          calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a * b, 1),
         },
         {
           name: 'multiplyB2',
           inputKeys: ['input13', 'input14'],
-          calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a * b, 0),
+          calculationFunction: (inputs: number[]) => inputs.reduce((a, b) => a * b, 1),
         },
       ],
     },
@@ -97,8 +97,9 @@ export const CalculationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return userInput[calculationFunction.name].value || 0;
       } else if ('children' in calculationFunction && calculationFunction.children) {
         // If there are child calculations, calculate each child and store the results
-        let inputs = calculationFunction.children?.map(childFunc => childFunc.inputKeys.map(key => userInput[key] || 0)).flat();
-        const childResults = calculationFunction.children?.map(calcFunc => calcFunc.calculationFunction(inputs));
+        let inputs = {}
+        calculationFunction.children?.map(childFunc => inputs[childFunc.name] = childFunc.inputKeys.map(key => userInput[key]? parseInt(userInput[key]): 0)).flat();
+        const childResults = calculationFunction.children?.map(calcFunc => calcFunc.calculationFunction(inputs[calcFunc.name]));
         childResults.forEach((result, index) => {
           newCalculationResults[calculationFunction.children[index].name] = result;
         });
